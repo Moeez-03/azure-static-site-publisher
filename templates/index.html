@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-800 pb-6">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-white">Active Static Websites</h1>
+            <p class="text-sm text-slate-400 mt-1">Resource Group: <code class="px-2 py-0.5 rounded bg-slate-800 text-blue-400 font-mono text-xs">{{ resource_group }}</code></p>
+        </div>
+        <div class="flex items-center gap-3">
+            <a href="/" class="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition" title="Refresh list">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </a>
+            <a href="/deploy" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 font-medium text-sm text-white transition flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i> New Site
+            </a>
+        </div>
+    </div>
+
+    {% if error %}
+        <div class="p-4 rounded-xl bg-amber-950/30 border border-amber-800/40 text-amber-300 text-sm flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
+            <div>
+                <strong class="font-medium">Setup Notice:</strong> {{ error }}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Sites Grid / Table -->
+    {% if sites %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for site in sites %}
+                <div class="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-slate-700 transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-globe"></i>
+                                </div>
+                                <h3 class="font-semibold text-white tracking-wide">{{ site.name }}</h3>
+                            </div>
+                            <span class="px-2.5 py-1 rounded-full text-xs font-medium 
+                                {% if site.web_endpoint %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-slate-800 text-slate-400{% endif %}">
+                                {{ site.status }}
+                            </span>
+                        </div>
+
+                        <div class="mt-4 space-y-2 text-xs text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-location-dot w-4 text-slate-500"></i>
+                                <span>Region: <strong class="text-slate-300">{{ site.location }}</strong></span>
+                            </div>
+                            {% if site.web_endpoint %}
+                                <div class="flex items-center gap-2 overflow-hidden">
+                                    <i class="fa-solid fa-link w-4 text-slate-500 flex-shrink-0"></i>
+                                    <a href="{{ site.web_endpoint }}" target="_blank" class="text-blue-400 hover:underline truncate" title="{{ site.web_endpoint }}">
+                                        {{ site.web_endpoint }}
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                        {% if site.web_endpoint %}
+                            <a href="{{ site.web_endpoint }}" target="_blank" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> Visit
+                            </a>
+                        {% else %}
+                            <span></span>
+                        {% endif %}
+
+                        <!-- Teardown / Delete -->
+                        <form action="/delete/{{ site.name }}" method="POST" onsubmit="return confirm('Permanently delete {{ site.name }} from Azure to avoid charges?');">
+                            <button type="submit" class="text-xs px-3 py-1.5 rounded-lg text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 border border-rose-900/30 transition flex items-center gap-1.5" title="Delete Azure Storage Account">
+                                <i class="fa-solid fa-trash-can text-[10px]"></i> Teardown
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% elif not error %}
+        <div class="text-center py-16 border border-dashed border-slate-800 rounded-2xl">
+            <div class="w-12 h-12 rounded-xl bg-slate-900 text-slate-500 mx-auto flex items-center justify-center text-xl mb-3">
+                <i class="fa-solid fa-cloud"></i>
+            </div>
+            <h3 class="font-medium text-slate-300">No sites deployed yet</h3>
+            <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Upload a static HTML/JS/CSS folder or zip file to provision and deploy your first website.</p>
+            <a href="/deploy" class="mt-4 inline-flex items-center gap-2 text-xs px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium transition">
+                <i class="fa-solid fa-plus"></i> Deploy First Site
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Azure Cost Safety Notice -->
+    <div class="mt-12 p-4 rounded-xl bg-slate-900/40 border border-slate-800 text-xs text-slate-400 flex items-start gap-3">
+        <i class="fa-solid fa-shield-halved text-blue-400 text-sm mt-0.5"></i>
+        <div>
+            <strong class="text-slate-300 font-semibold">Cost Governance Tip:</strong>
+            Azure Storage accounts with Static Website hosting incur small recurring storage and egress costs. Use the <strong class="text-slate-300">Teardown</strong> button when testing is finished to immediately purge resources and avoid unwanted cloud bills.
+        </div>
+    </div>
+</div>
+{% endblock %}

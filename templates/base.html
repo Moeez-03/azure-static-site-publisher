@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Azure Static Site Publisher{% endblock %}</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        azure: {
+                            500: '#0078D4',
+                            600: '#106EBE',
+                            700: '#005A9E',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Navbar -->
+    <nav class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 font-semibold text-lg hover:opacity-90 transition">
+                <div class="w-9 h-9 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center border border-blue-500/30">
+                    <i class="fa-brands fa-microsoft text-lg"></i>
+                </div>
+                <span>Azure Static Site Publisher</span>
+            </a>
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-sm px-3 py-1.5 rounded-md hover:bg-slate-800 text-slate-300 hover:text-white transition">
+                    <i class="fa-solid fa-list mr-1.5 text-slate-400"></i> Sites
+                </a>
+                <a href="/deploy" class="text-sm px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 font-medium text-white transition flex items-center gap-2 shadow-lg shadow-blue-500/20">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Deploy Site
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-8">
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for category, message in messages %}
+                        <div class="p-4 rounded-xl border flex items-center gap-3 text-sm
+                            {% if category == 'error' %}
+                                bg-rose-950/40 border-rose-800/50 text-rose-300
+                            {% else %}
+                                bg-emerald-950/40 border-emerald-800/50 text-emerald-300
+                            {% endif %}">
+                            <i class="fa-solid {% if category == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 bg-slate-950 py-6 text-center text-xs text-slate-500">
+        <p>Azure Static Site Publisher &bull; Open-source automation engine</p>
+    </footer>
+
+</body>
+</html>
