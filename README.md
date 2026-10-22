@@ -7,7 +7,7 @@
 
 An automated **Flask Web Dashboard & CLI toolkit** to dynamically provision, configure, and publish static websites directly to **Microsoft Azure Storage Accounts** (`$web` container). 
 
-Easily turn any static build folder or `.zip` archive into a high-performance, globally distributed, HTTPS-enabled Azure website in seconds without navigating the Azure Portal manually.
+Turn any static build folder or .zip archive into an HTTPS-enabled Azure static website in seconds.
 
 ---
 
@@ -54,7 +54,7 @@ Easily turn any static build folder or `.zip` archive into a high-performance, g
 
 ## 🔑 Azure Service Principal Setup
 
-To allow this application to provision Azure resources securely, create an **Azure Service Principal** with `Contributor` role access:
+To allow this application to provision Azure resources securely, create an **Azure Service Principal** with `Contributor` role access scoped specifically to your target Resource Group:
 
 1. **Log in to your Azure account:**
    ```bash
@@ -66,16 +66,21 @@ To allow this application to provision Azure resources securely, create an **Azu
    az account show --query "{subscriptionId:id, tenantId:tenantId}" --output table
    ```
 
-3. **Create the Service Principal:**
+3. **Create the target Resource Group:**
    ```bash
-   az ad sp create-for-rbac --name "sp-azure-static-publisher" --role "Contributor" --scopes "/subscriptions/<YOUR_SUBSCRIPTION_ID>" --sdk-auth
+   az group create --name "rg-static-sites" --location "eastus"
+   ```
+
+4. **Create the Service Principal (scoped to the Resource Group):**
+   ```bash
+   az ad sp create-for-rbac --name "sp-azure-static-publisher" --role "Contributor" --scopes "/subscriptions/<YOUR_SUBSCRIPTION_ID>/resourceGroups/rg-static-sites"
    ```
 
    Copy the resulting output credentials:
-   * `clientId` $\rightarrow$ `AZURE_CLIENT_ID`
-   * `clientSecret` $\rightarrow$ `AZURE_CLIENT_SECRET`
-   * `tenantId` $\rightarrow$ `AZURE_TENANT_ID`
-   * `subscriptionId` $\rightarrow$ `AZURE_SUBSCRIPTION_ID`
+   * `appId` $\rightarrow$ `AZURE_CLIENT_ID`
+   * `password` $\rightarrow$ `AZURE_CLIENT_SECRET`
+   * `tenant` $\rightarrow$ `AZURE_TENANT_ID`
+   * Subscription ID $\rightarrow$ `AZURE_SUBSCRIPTION_ID`
 
 ---
 
@@ -113,6 +118,11 @@ SECRET_KEY=secure-random-key-for-flask
 ## 💻 Usage
 
 ### Method 1: Web Dashboard (Flask)
+
+> [!IMPORTANT]
+> **Security Note:**  
+> The dashboard has no authentication. Run it only on localhost and never expose it to the internet.
+
 Start the local web server:
 ```bash
 python app.py
